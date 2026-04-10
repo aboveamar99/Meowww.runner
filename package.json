@@ -1,16 +1,12 @@
-// package.json
 {
   "name": "endless-runner-pro",
-  "version": "2.0.0",
-  "description": "Professional endless runner game with advanced features",
-  "main": "main.js",
+  "version": "1.0.0",
+  "description": "Professional endless runner game",
+  "main": "index.html",
   "scripts": {
-    "dev": "python3 -m http.server 8000",
-    "serve": "npx http-server -p 8000",
-    "termux": "python -m http.server 8000"
+    "dev": "python3 -m http.server 8000"
   },
-  "keywords": ["game", "canvas", "endless-runner", "javascript"],
-  "author": "",
-  "license": "MIT",
-  "type": "module"
+  "keywords": ["game", "canvas", "endless-runner"],
+  "author": "aboveamar99",
+  "license": "MIT"
 }
