@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🐱 Meowww Runner</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>🏃 ENDLESS RUNNER PRO</title>
     <style>
         * {
             margin: 0;
@@ -11,39 +12,70 @@
             box-sizing: border-box;
         }
         body {
-            background: #0a0a1a;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             overflow: hidden;
             touch-action: none;
-            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a1a;
         }
         #gameCanvas {
             display: block;
             width: 100%;
-            height: 100vh;
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
         }
         #loading {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1A1A2E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
             color: white;
             font-size: 24px;
-            z-index: 1000;
+            transition: opacity 0.5s;
         }
-        #fps {
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #4ECDC4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #fps-counter {
             position: fixed;
             top: 10px;
             right: 10px;
+            background: rgba(0, 0, 0, 0.5);
             color: #4ECDC4;
+            padding: 5px 10px;
+            border-radius: 5px;
             font-family: monospace;
             font-size: 12px;
-            z-index: 100;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 8px;
-            border-radius: 4px;
+            z-index: 1000;
+            pointer-events: none;
         }
-        #controls {
+        #mobile-controls {
             position: fixed;
             bottom: 20px;
             left: 0;
@@ -51,464 +83,314 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            z-index: 100;
+            z-index: 1000;
+            pointer-events: none;
         }
         .ctrl-btn {
-            width: 70px;
-            height: 70px;
-            background: rgba(78, 205, 196, 0.3);
+            width: 80px;
+            height: 80px;
+            background: rgba(26, 26, 46, 0.7);
             border: 2px solid #4ECDC4;
-            border-radius: 15px;
+            border-radius: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 30px;
+            font-size: 32px;
             font-weight: bold;
+            pointer-events: auto;
             backdrop-filter: blur(5px);
             user-select: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .ctrl-btn:active {
-            background: rgba(78, 205, 196, 0.7);
+            background: rgba(78, 205, 196, 0.5);
             transform: scale(0.95);
         }
         @media (min-width: 768px) {
-            #controls { display: none; }
+            #mobile-controls {
+                display: none;
+            }
         }
-        #gameOver {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
+        #orientation-warning {
             display: none;
-            z-index: 200;
-            border: 2px solid #FF6B6B;
-        }
-        #gameOver h2 {
-            font-size: 36px;
-            color: #FF6B6B;
-            margin-bottom: 15px;
-        }
-        #gameOver button {
-            background: #4ECDC4;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 18px;
-            border-radius: 8px;
-            margin-top: 15px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        #gameOver button:hover {
-            background: #3BA89F;
-        }
-        #startScreen {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1A1A2E;
             color: white;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
             text-align: center;
-            z-index: 150;
+            padding: 20px;
         }
-        #startScreen h1 {
-            font-size: 48px;
-            color: #FFE66D;
-            margin-bottom: 20px;
-            text-shadow: 3px 3px 0 #FF6B6B;
-        }
-        #startScreen button {
-            background: #4ECDC4;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 22px;
-            border-radius: 10px;
-            margin: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            border: 2px solid white;
+        @media (orientation: portrait) {
+            #orientation-warning {
+                display: flex;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loading">🎮 Loading Game...</div>
-    <div id="fps">FPS: <span id="fpsValue">60</span></div>
-    
-    <div id="startScreen">
-        <h1>🐱 MEOWWW RUNNER</h1>
-        <p style="font-size: 20px; margin-bottom: 20px;">🏃 Run • Jump • Slide • Collect</p>
-        <button id="startBtn">▶ START GAME</button>
-        <p style="margin-top: 20px; opacity: 0.7;">
-            ⬅️➡️ Arrow Keys / Swipe<br>
-            ⬆️ Jump &nbsp;&nbsp;|&nbsp;&nbsp; ⬇️ Slide
-        </p>
+    <div id="loading">
+        <div class="loader">
+            <div class="spinner"></div>
+            <div>Loading Game...</div>
+        </div>
     </div>
     
-    <div id="gameOver">
-        <h2>GAME OVER</h2>
-        <p>Score: <span id="finalScore">0</span></p>
-        <p>Coins: <span id="finalCoins">0</span></p>
-        <p>Best: <span id="finalBest">0</span></p>
-        <button id="restartBtn">🔄 PLAY AGAIN</button>
+    <div id="orientation-warning">
+        <div>
+            <h2>🔄 Please Rotate Your Device</h2>
+            <p>This game is best played in landscape mode</p>
+        </div>
     </div>
     
-    <canvas id="gameCanvas"></canvas>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
     
-    <div id="controls">
-        <div class="ctrl-btn" id="leftBtn">⬅️</div>
-        <div class="ctrl-btn" id="jumpBtn">⬆️</div>
-        <div class="ctrl-btn" id="slideBtn">⬇️</div>
-        <div class="ctrl-btn" id="rightBtn">➡️</div>
+    <div id="fps-counter">FPS: <span id="fps-value">60</span></div>
+    
+    <div id="mobile-controls">
+        <div class="ctrl-btn" id="ctrl-left">←</div>
+        <div class="ctrl-btn" id="ctrl-jump">↑</div>
+        <div class="ctrl-btn" id="ctrl-slide">↓</div>
+        <div class="ctrl-btn" id="ctrl-right">→</div>
     </div>
 
-    <script>
-        (function(){
-            "use strict";
+    <script type="module">
+        // Main entry point - Loads all your existing modular files
+        import { Engine } from './game-engine/core/Engine.js';
+        import { RenderingEngine } from './game-engine/rendering/RenderingEngine.js';
+        import { PhysicsEngine } from './game-engine/physics/PhysicsEngine.js';
+        import { InputManager } from './game-engine/input/InputManager.js';
+        import { GameStateManager } from './game-engine/state/GameStateManager.js';
+        import { UISystem } from './game-engine/ui/UISystem.js';
+        import { AudioSystem } from './systems/AudioSystem.js';
+        import { DataManager } from './systems/DataManager.js';
+        
+        // Dynamic imports for states (to avoid circular dependencies)
+        async function loadStates(game) {
+            const { MenuState } = await import('./states/MenuState.js');
+            const { GameState } = await import('./states/GameState.js');
+            const { SettingsState } = await import('./states/SettingsState.js');
+            const { CharacterState } = await import('./states/CharacterState.js');
             
-            // Canvas setup
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
+            game.stateManager.registerState('menu', new MenuState(game));
+            game.stateManager.registerState('game', new GameState(game));
+            game.stateManager.registerState('settings', new SettingsState(game));
+            game.stateManager.registerState('characters', new CharacterState(game));
             
-            // Resize
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+            game.stateManager.changeState('menu');
+        }
+
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.setupCanvas();
+                
+                this.engine = new Engine();
+                this.renderingEngine = new RenderingEngine(this.canvas);
+                this.physicsEngine = new PhysicsEngine();
+                this.inputManager = new InputManager();
+                this.stateManager = new GameStateManager();
+                this.uiSystem = new UISystem();
+                this.audioSystem = new AudioSystem();
+                this.dataManager = new DataManager();
+                
+                this.init();
             }
-            window.addEventListener('resize', resize);
-            resize();
-            
-            // Hide loading
-            document.getElementById('loading').style.display = 'none';
-            
-            // ========== GAME CLASS ==========
-            class Game {
-                constructor() {
-                    this.canvas = canvas;
-                    this.ctx = ctx;
-                    this.gameRunning = false;
-                    this.gameOver = false;
-                    this.score = 0;
-                    this.coins = 0;
-                    this.highScore = localStorage.getItem('meowwwHighScore') || 0;
-                    this.speed = 5;
-                    this.baseSpeed = 5;
-                    
-                    // Player
-                    this.player = {
-                        x: 0, y: 0, w: 35, h: 55,
-                        lane: 1, targetX: 0, groundY: 0,
-                        vy: 0, isGrounded: true, isSliding: false,
-                        origH: 55
-                    };
-                    
-                    // Objects
-                    this.obstacles = [];
-                    this.coinList = [];
-                    this.powerUps = [];
-                    
-                    // Spawn timers
-                    this.spawnTimer = 0;
-                    this.coinTimer = 0;
-                    
-                    // Input state
-                    this.keys = {};
-                    this.swipeDir = null;
-                    this.touchStart = { x: 0, y: 0, active: false };
-                    
-                    // FPS
-                    this.fps = 60;
-                    this.frameCount = 0;
-                    this.lastFpsUpdate = 0;
-                    
-                    this.initInput();
-                    this.resetPlayer();
+
+            setupCanvas() {
+                const resizeCanvas = () => {
+                    const container = this.canvas.parentElement;
+                    this.canvas.width = container.clientWidth;
+                    this.canvas.height = container.clientHeight;
+                };
+                
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas();
+            }
+
+            async init() {
+                // Initialize systems
+                this.renderingEngine.init();
+                this.inputManager.init();
+                this.uiSystem.init();
+                
+                // Initialize audio (requires user interaction)
+                try {
+                    await this.audioSystem.init();
+                } catch (e) {
+                    console.warn('Audio not initialized yet - will start on first interaction');
                 }
                 
-                resetPlayer() {
-                    const laneWidth = this.canvas.width / 3;
-                    this.player.lane = 1;
-                    this.player.targetX = laneWidth * 1.5 - this.player.w / 2;
-                    this.player.x = this.player.targetX;
-                    this.player.groundY = this.canvas.height - 80;
-                    this.player.y = this.player.groundY;
-                    this.player.vy = 0;
-                    this.player.isGrounded = true;
-                    this.player.isSliding = false;
-                    this.player.h = this.player.origH;
-                }
+                // Register systems
+                this.engine.registerSystem('rendering', this.renderingEngine);
+                this.engine.registerSystem('physics', this.physicsEngine);
+                this.engine.registerSystem('input', this.inputManager);
+                this.engine.registerSystem('ui', this.uiSystem);
+                this.engine.registerSystem('audio', this.audioSystem);
+                this.engine.registerSystem('data', this.dataManager);
                 
-                initInput() {
-                    // Keyboard
-                    window.addEventListener('keydown', (e) => {
-                        this.keys[e.code] = true;
-                        e.preventDefault();
-                    });
-                    window.addEventListener('keyup', (e) => {
-                        this.keys[e.code] = false;
-                        e.preventDefault();
-                    });
+                // Load and register states
+                await loadStates(this);
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                this.setupBackground();
+                this.setupMobileControls();
+                
+                // Hide loading screen
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 500);
+                
+                // Start engine
+                this.engine.start();
+                
+                // FPS counter
+                this.startFpsCounter();
+                
+                // Expose for debugging
+                window.game = this;
+                
+                console.log('✅ Game initialized successfully!');
+            }
+
+            setupEventListeners() {
+                // Click handling for UI
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
                     
-                    // Touch
-                    canvas.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        const t = e.touches[0];
-                        this.touchStart = { x: t.clientX, y: t.clientY, active: true };
-                    });
+                    this.uiSystem.handleClick(x, y);
                     
-                    canvas.addEventListener('touchmove', (e) => {
-                        e.preventDefault();
-                        if (!this.touchStart.active) return;
-                        const t = e.touches[0];
-                        const dx = t.clientX - this.touchStart.x;
-                        const dy = t.clientY - this.touchStart.y;
+                    // Resume audio context on first interaction
+                    if (this.audioSystem.context && this.audioSystem.context.state === 'suspended') {
+                        this.audioSystem.context.resume();
+                    }
+                });
+                
+                // Mouse move for UI hover effects
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    this.uiSystem.handleMouseMove(x, y);
+                });
+                
+                // Handle page visibility
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        this.audioSystem.setMusicVolume(0);
+                    } else {
+                        const settings = this.dataManager.getSettings();
+                        this.audioSystem.setMusicVolume(settings.musicVolume);
+                    }
+                });
+                
+                // Prevent context menu
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+            }
+
+            setupMobileControls() {
+                const controls = {
+                    'ctrl-left': 'ArrowLeft',
+                    'ctrl-right': 'ArrowRight',
+                    'ctrl-jump': 'ArrowUp',
+                    'ctrl-slide': 'ArrowDown'
+                };
+                
+                Object.entries(controls).forEach(([id, key]) => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        // Touch events
+                        btn.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            this.inputManager.keys.set(key, true);
+                        });
+                        btn.addEventListener('touchend', (e) => {
+                            e.preventDefault();
+                            this.inputManager.keys.set(key, false);
+                        });
                         
-                        if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
-                            if (Math.abs(dx) > Math.abs(dy)) {
-                                this.swipeDir = dx > 0 ? 'right' : 'left';
-                            } else {
-                                this.swipeDir = dy > 0 ? 'down' : 'up';
-                            }
-                            this.touchStart.active = false;
-                        }
-                    });
-                    
-                    canvas.addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        if (this.touchStart.active) this.swipeDir = 'tap';
-                        this.touchStart.active = false;
-                    });
-                    
-                    // Control buttons
-                    const setupBtn = (id, key) => {
-                        const btn = document.getElementById(id);
-                        if (btn) {
-                            btn.addEventListener('touchstart', () => this.keys[key] = true);
-                            btn.addEventListener('touchend', () => this.keys[key] = false);
-                            btn.addEventListener('mousedown', () => this.keys[key] = true);
-                            btn.addEventListener('mouseup', () => this.keys[key] = false);
-                        }
-                    };
-                    
-                    setupBtn('leftBtn', 'ArrowLeft');
-                    setupBtn('rightBtn', 'ArrowRight');
-                    setupBtn('jumpBtn', 'ArrowUp');
-                    setupBtn('slideBtn', 'ArrowDown');
-                }
-                
-                start() {
-                    this.gameRunning = true;
-                    this.gameOver = false;
-                    this.score = 0;
-                    this.coins = 0;
-                    this.speed = this.baseSpeed;
-                    this.obstacles = [];
-                    this.coinList = [];
-                    this.powerUps = [];
-                    this.spawnTimer = 0;
-                    this.coinTimer = 0;
-                    this.resetPlayer();
-                    
-                    document.getElementById('startScreen').style.display = 'none';
-                    document.getElementById('gameOver').style.display = 'none';
-                    
-                    this.gameLoop();
-                }
-                
-                gameLoop() {
-                    if (!this.gameRunning) return;
-                    
-                    const now = performance.now();
-                    const dt = Math.min(16.67, now - (this.lastTime || now)) / 1000;
-                    this.lastTime = now;
-                    
-                    this.update(dt);
-                    this.render();
-                    
-                    // FPS counter
-                    this.frameCount++;
-                    if (now - this.lastFpsUpdate >= 1000) {
-                        this.fps = this.frameCount;
-                        document.getElementById('fpsValue').textContent = this.fps;
-                        this.frameCount = 0;
-                        this.lastFpsUpdate = now;
-                    }
-                    
-                    requestAnimationFrame(() => this.gameLoop());
-                }
-                
-                update(dt) {
-                    if (this.gameOver) return;
-                    
-                    // Input handling
-                    const laneWidth = this.canvas.width / 3;
-                    
-                    if (this.keys['ArrowLeft'] || this.swipeDir === 'left') {
-                        if (this.player.lane > 0) {
-                            this.player.lane--;
-                            this.player.targetX = this.player.lane * laneWidth + laneWidth/2 - this.player.w/2;
-                        }
-                    }
-                    if (this.keys['ArrowRight'] || this.swipeDir === 'right') {
-                        if (this.player.lane < 2) {
-                            this.player.lane++;
-                            this.player.targetX = this.player.lane * laneWidth + laneWidth/2 - this.player.w/2;
-                        }
-                    }
-                    
-                    const jumpPressed = this.keys['ArrowUp'] || this.keys['Space'] || this.swipeDir === 'up';
-                    if (jumpPressed && this.player.isGrounded) {
-                        this.player.vy = -9;
-                        this.player.isGrounded = false;
-                    }
-                    
-                    const slidePressed = this.keys['ArrowDown'] || this.swipeDir === 'down';
-                    this.player.isSliding = slidePressed;
-                    this.player.h = slidePressed ? this.player.origH / 2 : this.player.origH;
-                    
-                    this.swipeDir = null;
-                    
-                    // Player physics
-                    this.player.x += (this.player.targetX - this.player.x) * 12 * dt;
-                    this.player.vy += 22 * dt;
-                    this.player.y += this.player.vy * dt;
-                    
-                    if (this.player.y >= this.player.groundY) {
-                        this.player.y = this.player.groundY;
-                        this.player.vy = 0;
-                        this.player.isGrounded = true;
-                    }
-                    
-                    // Spawn obstacles
-                    this.spawnTimer += dt;
-                    if (this.spawnTimer > 1.2 / (this.speed / 5)) {
-                        this.spawnTimer = 0;
-                        const lane = Math.floor(Math.random() * 3);
-                        const isHigh = Math.random() > 0.5;
-                        this.obstacles.push({
-                            x: this.canvas.width,
-                            y: this.player.groundY + (isHigh ? 0 : 30),
-                            w: 35,
-                            h: isHigh ? 55 : 25,
-                            lane: lane
+                        // Mouse events (for testing on desktop)
+                        btn.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            this.inputManager.keys.set(key, true);
+                        });
+                        btn.addEventListener('mouseup', (e) => {
+                            e.preventDefault();
+                            this.inputManager.keys.set(key, false);
+                        });
+                        btn.addEventListener('mouseleave', (e) => {
+                            this.inputManager.keys.set(key, false);
                         });
                     }
-                    
-                    // Spawn coins
-                    this.coinTimer += dt;
-                    if (this.coinTimer > 0.4) {
-                        this.coinTimer = 0;
-                        if (Math.random() < 0.5) {
-                            const lane = Math.floor(Math.random() * 3);
-                            this.coinList.push({
-                                x: this.canvas.width,
-                                y: this.player.groundY - 10,
-                                w: 18,
-                                h: 18,
-                                lane: lane,
-                                collected: false,
-                                rot: 0
-                            });
-                        }
-                    }
-                    
-                    // Update obstacles
-                    this.speed = this.baseSpeed + Math.floor(this.score / 300);
-                    this.obstacles = this.obstacles.filter(obs => {
-                        obs.x -= this.speed * dt * 50;
-                        
-                        // Collision
-                        if (!this.gameOver && this.collide(this.player, obs)) {
-                            this.endGame();
-                        }
-                        
-                        return obs.x + obs.w > 0;
-                    });
-                    
-                    // Update coins
-                    this.coinList = this.coinList.filter(coin => {
-                        coin.x -= this.speed * dt * 50;
-                        coin.rot += dt * 5;
-                        
-                        if (!coin.collected && this.collide(this.player, coin)) {
-                            coin.collected = true;
-                            this.score += 10;
-                            this.coins++;
-                            return false;
-                        }
-                        
-                        return coin.x + coin.w > 0;
-                    });
-                    
-                    // Increase score over time
-                    this.score += Math.floor(dt * 5);
-                    
-                    // High score
-                    if (this.score > this.highScore) {
-                        this.highScore = this.score;
-                        localStorage.setItem('meowwwHighScore', this.highScore);
-                    }
+                });
+            }
+
+            setupBackground() {
+                // Create procedural background for parallax
+                const bgCanvas = document.createElement('canvas');
+                bgCanvas.width = 200;
+                bgCanvas.height = 200;
+                const bgCtx = bgCanvas.getContext('2d');
+                
+                bgCtx.fillStyle = '#1A1A2E';
+                bgCtx.fillRect(0, 0, 200, 200);
+                
+                // Stars
+                for (let i = 0; i < 100; i++) {
+                    bgCtx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.15})`;
+                    bgCtx.fillRect(Math.random() * 200, Math.random() * 200, 1, 1);
                 }
                 
-                collide(p, obj) {
-                    const objX = obj.lane * (this.canvas.width / 3) + (this.canvas.width / 3) / 2 - obj.w / 2;
-                    return p.x < objX + obj.w && 
-                           p.x + p.w > objX && 
-                           p.y < obj.y + obj.h && 
-                           p.y + p.h > obj.y;
-                }
+                const bgImage = new Image();
+                bgImage.src = bgCanvas.toDataURL();
                 
-                endGame() {
-                    this.gameOver = true;
-                    this.gameRunning = false;
-                    
-                    document.getElementById('finalScore').textContent = Math.floor(this.score);
-                    document.getElementById('finalCoins').textContent = this.coins;
-                    document.getElementById('finalBest').textContent = this.highScore;
-                    document.getElementById('gameOver').style.display = 'block';
-                }
-                
-                render() {
-                    // Clear
-                    ctx.fillStyle = '#1a1a2e';
-                    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                    
-                    // Stars
-                    ctx.fillStyle = '#FFFFFF';
-                    for (let i = 0; i < 50; i++) {
-                        const x = (i * 37 + this.score) % this.canvas.width;
-                        const y = (i * 13) % this.canvas.height;
-                        ctx.globalAlpha = 0.5 + Math.sin(Date.now() * 0.001 + i) * 0.3;
-                        ctx.fillRect(x, y, 2, 2);
+                this.renderingEngine.addParallaxLayer(bgImage, 0.05, 0);
+            }
+
+            startFpsCounter() {
+                const fpsSpan = document.getElementById('fps-value');
+                setInterval(() => {
+                    if (this.engine) {
+                        fpsSpan.textContent = Math.round(this.engine.currentFps || 60);
                     }
-                    ctx.globalAlpha = 1;
-                    
-                    // Ground
-                    ctx.fillStyle = '#16213E';
-                    ctx.fillRect(0, this.player.groundY + 55, this.canvas.width, 20);
-                    
-                    // Lane markers
-                    const laneWidth = this.canvas.width / 3;
-                    ctx.strokeStyle = '#FFFFFF22';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([10, 20]);
-                    for (let i = 1; i < 3; i++) {
-                        ctx.beginPath();
-                        ctx.moveTo(i * laneWidth, 0);
-                        ctx.lineTo(i * laneWidth, this.canvas.height);
-                        ctx.stroke();
-                    }
-                    ctx.setLineDash([]);
-                    
-                    // Obstacles
-                    ctx.fillStyle = '#E74C3C';
-                    this.obstacles.forEach(obs => {
-                        const x = obs.lane * laneWidth + laneWidth/2 - obs.w/2;
-                        ctx.fillRect(x, obs.y, obs.w, obs.h);
-                
+                }, 100);
+            }
+        }
+
+        // Start game when DOM is ready
+        window.addEventListener('load', () => {
+            new Game();
+        });
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            const warning = document.getElementById('orientation-warning');
+            if (window.innerHeight > window.innerWidth) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
+            }
+        });
+
+        // Prevent touch scrolling
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>
